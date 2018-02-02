@@ -44,7 +44,8 @@ var getCurrentVersion = function () {
 };
 
 var oldVersion = getCurrentVersion(),
-    message = argv.m || argv.message;
+    message = argv.m || argv.message,
+    publish = (argv.p == 'true') || (argv.publish == 'true');
 
 if (!oldVersion) error('No version in package.json found.');
 if (!version) error('No version supplied.');
@@ -76,19 +77,21 @@ npm.on('close', function (code) {
       return done();
     }
 
-    msg('Publishing to npm...');
+    if (publish) {
+      msg('Publishing to npm...');
 
-    // Publish to npm
-    var publish = spawn('npm', ['publish']);
-    publish.stdout.pipe(process.stdout);
-    publish.stderr.pipe(process.stderr);
-    publish.on('close', function (code) {
-      if (code !== 0) return error('npm publish. Exiting.');
+      // Publish to npm
+      var publish = spawn('npm', ['publish']);
+      publish.stdout.pipe(process.stdout);
+      publish.stderr.pipe(process.stderr);
+      publish.on('close', function (code) {
+        if (code !== 0) return error('npm publish. Exiting.');
 
-      success('Published to npm.');
-      done();
+        success('Published to npm.');
+        done();
 
-    });
+      });
+    }
   });
 });
 
